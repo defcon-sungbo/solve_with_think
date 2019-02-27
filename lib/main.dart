@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:xml/xml.dart' as xml;
 
 void main() => runApp(MyApp());
 
@@ -43,81 +44,61 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  var bookshelfXml =
+  '''
+  <?xml version="1.0"?>
+    <doc>
+      <part clickable="false">
+          <sentence>누르지 않는 문장</sentence>
+      </part>
+      <part clickable="true">
+          <sentence>누르는 문장</sentence>
+          <data>누르면 뜰 문장</data>
+      </part>
+    </doc>
+  ''';
+
   int _counter = 0;
-  Dialog TextDialog;
   Dialog NextDialog;
+  List<TextSpan> source  = new List<TextSpan>();
+
+
+  Dialog TextDialog(String t) {
+    return Dialog(
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)), //this right here
+    child: Container(
+      height: 150.0,
+      width: 200.0,
+
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Padding(
+            padding:  EdgeInsets.all(30.0),
+            child: Text(t, style: TextStyle(color: Colors.red),),
+          ),
+          Center(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                FlatButton(onPressed: (){
+                  Navigator.pop(context);
+                }, child: Text('OK', style: TextStyle(color: Colors.purple, fontSize: 18.0),))
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+  }
+
   void initState() {
+
     super.initState();
-    TextDialog = Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)), //this right here
-      child: Container(
-        height: 150.0,
-        width: 200.0,
 
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Padding(
-              padding:  EdgeInsets.all(30.0),
-              child: Text('이 문장에서는 인물으 연대 지향성을 알수 있겟군.', style: TextStyle(color: Colors.red),),
-            ),
-            Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  FlatButton(onPressed: (){
-                    Navigator.pop(context);
-                  }, child: Text('OK', style: TextStyle(color: Colors.purple, fontSize: 18.0),))
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-    NextDialog = Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)), //this right here
-      child: Container(
-        height: 150.0,
-        width: 200.0,
 
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Padding(
-              padding:  EdgeInsets.all(30.0),
-              child: Text('얼마나 이해 하셧나요', style: TextStyle(color: Colors.red),),
-            ),
-            Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  FlatButton(onPressed: (){
-                    Navigator.pop(context);
-                  }, child: Text('1', style: TextStyle(color: Colors.purple, fontSize: 18.0),)),
 
-                  FlatButton(onPressed: (){
-                    Navigator.pop(context);
-                  }, child: Text('2', style: TextStyle(color: Colors.purple, fontSize: 18.0),)),
-
-                  FlatButton(onPressed: (){
-                    Navigator.pop(context);
-                  }, child: Text('3', style: TextStyle(color: Colors.purple, fontSize: 18.0),)),
-
-                  FlatButton(onPressed: (){
-                    Navigator.pop(context);
-                  }, child: Text('4', style: TextStyle(color: Colors.purple, fontSize: 18.0),)),
-
-                  FlatButton(onPressed: (){
-                    Navigator.pop(context);
-                  }, child: Text('5', style: TextStyle(color: Colors.purple, fontSize: 18.0),)),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
 
@@ -135,12 +116,25 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+    var document = xml.parse(bookshelfXml);
+    var Texted = document.findAllElements('part');
+    Texted.forEach( (f) {
+      var a = f.findElements('sentence');
+      var d = f.findElements('data');
+      var t =  a.single.text;
+      TextSpan rtnval = (d.isEmpty) ? TextSpan(text: t,
+        style: Theme.of(context).textTheme.body1
+      ) : TextSpan(text: t,
+        style: Theme.of(context).textTheme.body2,
+        recognizer: TapGestureRecognizer()
+          ..onTap = () {
+            showDialog(context: context, builder: (BuildContext context) => this.TextDialog(d.single.text));
+          },
+      );
+
+      source.add(rtnval);
+    });
+    print(source);
     return Scaffold(
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
@@ -152,19 +146,7 @@ class _MyHomePageState extends State<MyHomePage> {
             text: TextSpan(
               text: '',
               style: DefaultTextStyle.of(context).style,
-              children: <TextSpan>[
-                TextSpan(text: '역사가 신채호는 역사를 아(我)와 비아(非我)의 투쟁 과정이라고 정의한 바 있다. 그가 무장 투쟁의 필요성을 역설한 독립 운동가이기도 했다는 사실 때문에, 그의 이러한 생각은 그를 투 쟁만을 강조한 강경론자처럼 비춰지게 하곤 한다. '
-                    ,style: Theme.of(context).textTheme.body1
-
-                ),
-                TextSpan(text: '하지만 그는 식민지 민중과 제국주의 국가 에서 제국주의를 반대하는 민중 간의 연대를 지향하기도 했다.',
-                    style: Theme.of(context).textTheme.body2
-                    ,recognizer: TapGestureRecognizer()
-                    ..onTap = () {
-                      showDialog(context: context, builder: (BuildContext context) => TextDialog);
-                    },
-                )
-              ],
+              children: this.source,
             ),
           )
       )
@@ -177,4 +159,5 @@ class _MyHomePageState extends State<MyHomePage> {
       // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
+
 }
