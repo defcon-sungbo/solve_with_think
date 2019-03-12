@@ -1,6 +1,7 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:xml/xml.dart' as xml;
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+import 'package:solve_with_think/Page/SigninPage.dart';
 
 void main() => runApp(MyApp());
 
@@ -20,7 +21,7 @@ class MyApp extends StatelessWidget {
         ),
 
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: SigninPage(),
     );
   }
 }
@@ -42,20 +43,17 @@ class MyHomePage extends StatefulWidget {
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
-
 class _MyHomePageState extends State<MyHomePage> {
   var bookshelfXml =
   '''
   <?xml version="1.0"?>
     <doc>
-      <part clickable="false">
-          <sentence>누르지 않는 문장</sentence>
-      </part>
-      <part clickable="true">
-          <sentence>누르는 문장</sentence>
-          <data>누르면 뜰 문장</data>
-      </part>
-    </doc>
+      ㄴㅐ내내내내내
+    <doc>
+    <key>
+      <sentence>
+      <sentence>
+    <key>
   ''';
 
   int _counter = 0;
@@ -116,24 +114,24 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    var document = xml.parse(bookshelfXml);
-    var Texted = document.findAllElements('part');
-    Texted.forEach( (f) {
-      var a = f.findElements('sentence');
-      var d = f.findElements('data');
-      var t =  a.single.text;
-      TextSpan rtnval = (d.isEmpty) ? TextSpan(text: t,
-        style: Theme.of(context).textTheme.body1
-      ) : TextSpan(text: t,
-        style: Theme.of(context).textTheme.body2,
-        recognizer: TapGestureRecognizer()
-          ..onTap = () {
-            showDialog(context: context, builder: (BuildContext context) => this.TextDialog(d.single.text));
-          },
-      );
-
-      source.add(rtnval);
-    });
+//    var document = xml.parse(bookshelfXml);
+//    var Texted = document.findAllElements('part');
+//    Texted.forEach( (f) {
+//      var a = f.findElements('sentence');
+//      var d = f.findElements('data');
+//      var t =  a.single.text;
+//      TextSpan rtnval = (d.isEmpty) ? TextSpan(text: t,
+//        style: Theme.of(context).textTheme.body1
+//      ) : TextSpan(text: t,
+//        style: Theme.of(context).textTheme.body2,
+//        recognizer: TapGestureRecognizer()
+//          ..onTap = () {
+//            showDialog(context: context, builder: (BuildContext context) => this.TextDialog(d.single.text));
+//          },
+//      );
+//
+//      source.add(rtnval);
+//    });
     print(source);
     return Scaffold(
       appBar: AppBar(
@@ -152,7 +150,8 @@ class _MyHomePageState extends State<MyHomePage> {
       )
         ,floatingActionButton: FloatingActionButton(
               onPressed: () {
-                showDialog(context: context, builder: (BuildContext context) => NextDialog);
+                Firestore.instance.collection('books').document()
+                    .setData({ 'title': 'title', 'author': 'author' });
               },
               child: Icon(Icons.add),
           )
