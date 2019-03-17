@@ -1,6 +1,8 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:solve_with_think/AuthManager.dart';
+import 'package:solve_with_think/Page/AticleListPage.dart';
 
 class SigninPage extends StatefulWidget {
   @override
@@ -9,8 +11,6 @@ class SigninPage extends StatefulWidget {
 
 class _SigninPageState extends State<SigninPage> {
 
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +65,22 @@ class _SigninPageState extends State<SigninPage> {
           borderRadius: BorderRadius.circular(24),
         ),
         onPressed: () {
-
+          AuthManager().instance().handleSignIn()
+              .then((FirebaseUser user) {
+                if(user == null){
+                  //TODO:: Fail Login With Google
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AticleListPage()),
+                  );
+                }else{
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => AticleListPage()),
+                  );
+                }
+          })
+              .catchError((e) => print( "Error C0de => $e" ));
         },
         color: Colors.redAccent,
         child: Text('Log In with Google', style: TextStyle(color: Colors.white)),
